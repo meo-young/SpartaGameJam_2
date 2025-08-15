@@ -8,9 +8,17 @@ public class SpartaGameJam_2 : ModuleRules
 	public SpartaGameJam_2(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput",
+			"PaperZD"
+		});
+		
         PublicIncludePaths.AddRange(new string[] {
             Path.Combine(ModuleDirectory, "Manager"),
             Path.Combine(ModuleDirectory, "Yut"),
