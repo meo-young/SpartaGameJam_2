@@ -52,14 +52,14 @@ void UTileManager::CreateStage()
 		SpawnLocationArr.Add(NewSpawnLocation);
 	}
 	
-	// 내부 노드 생성
+	// 내부 노드 위치 설정
 
 	// 아래, 오른쪽, 위, 왼쪽
 	FVector Directions[4] = {
-		FVector(0, -1, 0),
 		FVector(1, 0, 0),
 		FVector(0, 1, 0),
 		FVector(-1, 0, 0),
+		FVector(0, -1, 0),
 	};
 
 	float StepDis = OutlineRadius / (InnerLength + 1);
@@ -73,6 +73,9 @@ void UTileManager::CreateStage()
 			SpawnLocationArr.Add(NewSpawnLocation);
 		}
 	}
+
+	// 중앙 노드 위치 설정
+	SpawnLocationArr.Add(CenterLocation);
 
 	// 행운, 트랩 발판 스폰
 	// 시작, 중앙 위치는 일반 발판
@@ -141,17 +144,23 @@ void UTileManager::CreateStage()
 	}
 
 	// 교차로가 될 노드를 캐싱
-
-	// 노드 배치
-	// 배치 간격 및 위치 필요
-
 	// 각 노드의 연결 관계 저장
-
-	// 외곽 노드와 내부 노드 연결 관계 저장
-	// 외곽과 내부가 접하게되는 노드를 찾아야한다.
-	// 외곽 노드에서 내부 노드와의 연결을 2차원 배열로 연결
+	CrossTileList = {
+		{ InnerTileList[3] , 0},
+		{ InnerTileList[5] , 9},
+		{ InnerTileList[7] , 12},
+		{ InnerTileList[1] , 3},
+	};
 }
 
 void UTileManager::RotationStage()
 {
+	for (auto& CrossTile : CrossTileList)
+	{
+		CrossTile.Value += 1;
+
+		CrossTile.Value %= OutlineSize;
+	}
+
+	//TODO: 실제로 위치가 갱신되도록 구현해야한다.
 }
