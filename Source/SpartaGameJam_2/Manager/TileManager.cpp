@@ -79,13 +79,18 @@ void UTileManager::CreateStage()
 
 	// 행운, 트랩 발판 스폰
 	// 시작, 중앙 위치는 일반 발판
+	// 각 교차점도 일반 발판으로 설정하기
+	//TODO: 꼭짓점은 색이 다른 일반 발판으로 설정하기
 	
 	// 행운 및 트랩 발판을 설정할 인덱스
 	TArray<int32> SpecialTileIndexArr;
 
 	for (int32 i = 1; i < SpawnLocationArr.Num() - 1; ++i)
 	{
-		SpecialTileIndexArr.Add(i);
+		if (i % 5 != 0)
+		{
+			SpecialTileIndexArr.Add(i);
+		}
 	}
 
 	for (int32 i = 0; i < SpecialTileIndexArr.Num(); ++i)
@@ -107,24 +112,40 @@ void UTileManager::CreateStage()
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 		AYutTile* Spawned = nullptr;
-		// 트랩 발판 스폰
-		if (SpecialTileIndexArr.Contains(i) && RemainTrapTileCount)
+
+		// 시작점 발판 스폰
+		if (i == 0 && StartTileClass)
 		{
-			Spawned = GetWorld()->SpawnActor<AYutTile>(TrapTile, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+			Spawned = GetWorld()->SpawnActor<AYutTile>(StartTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+		}
+		// 중앙 발판 스폰
+		else if (i == SpawnLocationArr.Num() - 1 && CenterTileClass)
+		{
+			Spawned = GetWorld()->SpawnActor<AYutTile>(CenterTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+		}
+		// 교차점 발판 스폰
+		else if (i < OutlineSize && i % (OutlineSize / 4) == 0 && CrossTileClass)
+		{
+			Spawned = GetWorld()->SpawnActor<AYutTile>(CrossTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+		}
+		// 트랩 발판 스폰
+		else if (SpecialTileIndexArr.Contains(i) && RemainTrapTileCount && TrapTileClass)
+		{
+			Spawned = GetWorld()->SpawnActor<AYutTile>(TrapTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
 
 			--RemainTrapTileCount;
 		}
 		// 행운 발판 스폰
-		else if (SpecialTileIndexArr.Contains(i) && RemainLuckyTileCount)
+		else if (SpecialTileIndexArr.Contains(i) && RemainLuckyTileCount && LuckyTileClass)
 		{
-			Spawned = GetWorld()->SpawnActor<AYutTile>(LuckyTile, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+			Spawned = GetWorld()->SpawnActor<AYutTile>(LuckyTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
 
 			--RemainLuckyTileCount;
 		}
 		// 일반 발판 스폰
-		else
+		else if (NormalTileClass)
 		{
-			Spawned = GetWorld()->SpawnActor<AYutTile>(NormalTile, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+			Spawned = GetWorld()->SpawnActor<AYutTile>(NormalTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
 		}
 
 		// 액터를 스폰하지 못한 경우
@@ -145,12 +166,19 @@ void UTileManager::CreateStage()
 
 	// 교차로가 될 노드를 캐싱
 	// 각 노드의 연결 관계 저장
-	CrossTileList = {
-		{ InnerTileList[3] , 0},
-		{ InnerTileList[5] , 9},
-		{ InnerTileList[7] , 12},
-		{ InnerTileList[1] , 3},
-	};
+	if (InnerTileList.Num() == (InnerLength * 4 + 1) &&
+		InnerTileList.IsValidIndex(1) &&
+		InnerTileList.IsValidIndex(3) &&
+		InnerTileList.IsValidIndex(5) &&
+		InnerTileList.IsValidIndex(7))
+	{
+		CrossTileList = {
+		{ InnerTileList[1], 0 },
+		{ InnerTileList[3], 5 },
+		{ InnerTileList[5], 10 },
+		{ InnerTileList[7], 15 },
+		};
+	}
 }
 
 void UTileManager::RotationStage()
