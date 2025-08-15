@@ -20,9 +20,14 @@ public class SpartaGameJam_2 : ModuleRules
 		});
 		
         PublicIncludePaths.AddRange(new string[] {
+            "SpartaGameJam_2",
             Path.Combine(ModuleDirectory, "Manager"),
             Path.Combine(ModuleDirectory, "Yut"),
             Path.Combine(ModuleDirectory, "Core"),
+            Path.Combine(ModuleDirectory, "Character"),
+            Path.Combine(ModuleDirectory, "Enum"),
+            Path.Combine(ModuleDirectory, "SubSystem"),
+            Path.Combine(ModuleDirectory, "TableRowBase"),
         });
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
