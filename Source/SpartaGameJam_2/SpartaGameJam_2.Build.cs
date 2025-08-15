@@ -1,5 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class SpartaGameJam_2 : ModuleRules
@@ -7,7 +8,7 @@ public class SpartaGameJam_2 : ModuleRules
 	public SpartaGameJam_2(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", 
@@ -18,7 +19,11 @@ public class SpartaGameJam_2 : ModuleRules
 			"PaperZD"
 		});
 		
-		PublicIncludePaths.AddRange(new string[] { "SpartaGameJam_2" });
+        PublicIncludePaths.AddRange(new string[] {
+            Path.Combine(ModuleDirectory, "Manager"),
+            Path.Combine(ModuleDirectory, "Yut"),
+            Path.Combine(ModuleDirectory, "Core"),
+        });
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
