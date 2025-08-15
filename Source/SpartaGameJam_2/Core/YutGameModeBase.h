@@ -18,10 +18,15 @@ public:
 
 	virtual void StartPlay();
 
+	void StartTurn();
+
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UTileManager> TileManagerClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UTileManager> TileManager;
+
+	// 턴 수
+	int32 TrunCount;
 };

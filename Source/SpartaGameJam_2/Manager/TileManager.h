@@ -28,34 +28,46 @@ public:
 
 private:
 	// 외곽 크기
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Size", meta = (AllowPrivateAccess = true))
 	int32 OutlineSize;
 
 	// 내부 길이
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Size", meta = (AllowPrivateAccess = true))
 	int32 InnerLength;
 
 	// 중심으로부터의 외곽 발판의 거리
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Size", meta = (AllowPrivateAccess = true))
 	float OutlineRadius;
 
 	// 기본 발판 클래스 참조
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AYutTile> NormalTile;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> NormalTileClass;
 
+	// 교차점 발판 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> CrossTileClass;
+
+	// 시작 및 도착 발판 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> StartTileClass;
+
+	// 중앙 발판 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> CenterTileClass;
+
+	// 트랩 발판 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> TrapTileClass;
+
+	// 행운 발판 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AYutTile> LuckyTileClass;
+	
 	// 트랩 발판 수
 	int32 TrapTileCount;
 
-	// 트랩 발판 클래스 참조
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AYutTile> TrapTile;
-
 	// 행운 발판 수
 	int32 LuckyTileCount;
-
-	// 행운 발판 클래스 참조
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AYutTile> LuckyTile;
 
 	// 외곽 액터 캐싱 목록
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
