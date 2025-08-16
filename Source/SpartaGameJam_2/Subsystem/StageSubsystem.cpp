@@ -50,6 +50,12 @@ void UStageSubsystem::HandleAITurn()
 
 	// 5. 턴을 종료합니다.
 	bIsPlayerTurn = true;
+
+	// 6. 턴 종료 델리게이트를 호출합니다.
+	if (OnTurnEndedDelegate.IsBound())
+	{
+		OnTurnEndedDelegate.Broadcast();
+	}
 }
 
 void UStageSubsystem::HandlePlayerTurn()
