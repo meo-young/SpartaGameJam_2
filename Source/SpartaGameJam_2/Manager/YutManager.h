@@ -21,6 +21,7 @@ struct FYutResultData : public FTableRowBase
 	bool bCanThrowAgain;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnYutUsed, const FYutResultData&, UsedYutResult);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnThrowFinished, FYutResultData, YutResult, const TArray<FYutResultData>&, AvailableYuts);
 UCLASS(Blueprintable)
 class SPARTAGAMEJAM_2_API UYutManager : public UObject
@@ -58,6 +59,9 @@ public:
 	
 	bool bCanThrow;
 	bool bIsAITurn;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnYutUsed OnYutUsed;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnThrowFinished OnThrowFinished;

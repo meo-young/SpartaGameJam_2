@@ -93,6 +93,7 @@ void UYutManager::ShowYutResult()
 					{
 						UE_LOG(LogTemp, Warning, TEXT("Player name : %s"), *Player->GetName());
 						GameMode->TileManager->MoveTile(Player, YutResultValue);
+						OnYutUsed.Broadcast(YutResultData);
 						break;
 					}
 				}
