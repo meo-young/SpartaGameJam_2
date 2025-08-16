@@ -16,6 +16,10 @@ public:
 	ADdakjiCharacter();
 	virtual void Tick(float DeltaTime) override;
 
+	/** 캐릭터의 스프라이트를 변경하는 함수입니다. */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetFlipBook();
+
 	/** 목표 위치로 캐릭터를 점프시키는 함수입니다. */ 
 	UFUNCTION(BlueprintCallable)
 	void JumpToLocation(FVector Location);
