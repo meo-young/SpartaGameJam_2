@@ -16,9 +16,12 @@ struct FYutResultData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Probability;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCanThrowAgain;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnThrowFinished, int32, ResultValue, bool, bCanThrowAgain);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnThrowFinished, FYutResultData, YutResult, const TArray<FYutResultData>&, AvailableYuts);
 UCLASS(Blueprintable)
 class SPARTAGAMEJAM_2_API UYutManager : public UObject
 {
@@ -34,6 +37,7 @@ public:
 	void StartYutThrow();
 
 	bool CanThrowAgain(int32 YutResult);
+	FYutResultData GetYutData(int32 YutResult);
 	int32 CalculateRandomYut();
 	
 	TArray<FYutResultData> CachedYutData;
@@ -45,4 +49,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnThrowFinished OnThrowFinished;
+
+	TArray<FYutResultData> AvailableYuts;
 };

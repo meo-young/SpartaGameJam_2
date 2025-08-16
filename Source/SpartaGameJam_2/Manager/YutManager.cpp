@@ -1,4 +1,4 @@
-#include "Yut/YutManager.h"
+#include "YutManager.h"
 
 void UYutManager::Initialize()
 {
@@ -19,9 +19,9 @@ void UYutManager::LoadYutData()
 	TArray<FName> RowNames = YutDataTable->GetRowNames();
 	for (const FName& RowName : RowNames)
 	{
-		if (FYutResultData* ShopItem = YutDataTable->FindRow<FYutResultData>(RowName, TEXT("")))
+		if (FYutResultData* YutData = YutDataTable->FindRow<FYutResultData>(RowName, TEXT("")))
 		{
-			CachedYutData.Add(*ShopItem);
+			CachedYutData.Add(*YutData);
 		}
 	}
 	
@@ -31,17 +31,36 @@ void UYutManager::LoadYutData()
 void UYutManager::StartYutThrow()
 {
 	int32 Result = CalculateRandomYut();
-	bool bCanThrowAgain = CanThrowAgain(Result);
-
-	UE_LOG(LogTemp, Log, TEXT("Yut Result: %d. Can Throw Again: %s"), Result, bCanThrowAgain ? TEXT("true") : TEXT("false"));
-
-	// TODO : 델리게이트로 UI 활성화 
-	OnThrowFinished.Broadcast(Result, bCanThrowAgain);
+	FYutResultData YutResult = GetYutData(Result);
+	AvailableYuts.Add(YutResult);
+	
+	OnThrowFinished.Broadcast(YutResult, AvailableYuts);
 }
 
 bool UYutManager::CanThrowAgain(int32 YutResult)
 {
 	return (YutResult == 4 || YutResult == 5);
+}
+
+FYutResultData UYutManager::GetYutData(int32 YutResult)
+{
+	for (const FYutResultData& YutData : CachedYutData)
+	{
+		if (YutData.YutResult == YutResult)
+		{
+			FYutResultData Result = YutData;
+			Result.bCanThrowAgain = (YutResult == 4 || YutResult == 5);
+			return Result;
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Could not find YutData for result: %d"), YutResult);
+	FYutResultData DefaultResult;
+	DefaultResult.YutResult = 1;
+	DefaultResult.ResultName = TEXT("도");
+	DefaultResult.Probability = 20.0f;
+	DefaultResult.bCanThrowAgain = false;
+	return DefaultResult;
 }
 
 int32 UYutManager::CalculateRandomYut()
