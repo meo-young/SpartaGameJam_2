@@ -46,9 +46,17 @@ void UYutManager::StartYutThrow()
 	}
 
 	SpawnYutActor();
-	
-	int32 Result = CalculateRandomYut();
+	ApplyPhysicsImpulse();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UYutManager::ShowYutResult, 2.0f);
+}
+
+void UYutManager::ShowYutResult()
+{
+	int32 Result = CalculateYutResult();
 	FYutResultData YutResult = GetYutData(Result);
+	UE_LOG(LogTemp, Error, TEXT("Yut Result: %s (%d)"), *YutResult.ResultName, YutResult.YutResult);
 	bCanThrow = YutResult.bCanThrowAgain;
 	
 	AvailableYuts.Add(YutResult);
@@ -58,8 +66,6 @@ void UYutManager::StartYutThrow()
 	{
 		EndTurn();
 	}
-
-	ApplyPhysicsImpulse();
 }
 
 TArray<FYutResultData> UYutManager::EndTurn()
@@ -86,30 +92,6 @@ FYutResultData UYutManager::GetYutData(int32 YutResult)
 	DefaultResult.Probability = 20.0f;
 	DefaultResult.bCanThrowAgain = false;
 	return DefaultResult;
-}
-
-int32 UYutManager::CalculateRandomYut()
-{
-	float TotalWeight = 0.0f;
-	for (const FYutResultData& YutData : CachedYutData)
-	{
-		TotalWeight += YutData.Probability;
-	}
-	
-	float RandomWeight = FMath::FRand() * TotalWeight;
-	
-	float CurrentProbability = 0.0f;
-	for (const FYutResultData& YutData : CachedYutData)
-	{
-		CurrentProbability += YutData.Probability;
-		if (RandomWeight <= CurrentProbability)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Yut Result: %s (%d)"), *YutData.ResultName, YutData.YutResult);
-			return YutData.YutResult;
-		}
-	}
-    
-	return 1;
 }
 
 void UYutManager::SpawnYutActor()
@@ -144,4 +126,59 @@ void UYutManager::ApplyPhysicsImpulse()
 		FVector AngularImpulse = UKismetMathLibrary::RandomUnitVector() * FMath::RandRange(200.0f, 400.0f);
 		YutMesh->AddAngularImpulseInDegrees(AngularImpulse, NAME_None, true);
 	}
+}
+
+int32 UYutManager::CalculateYutResult()
+{
+	int32 UpCnt = 0;
+	UStaticMeshComponent* UpwardYut = nullptr;
+	
+	for (UStaticMeshComponent* YutMesh : YutMeshes)
+	{
+		YutMesh->SetSimulatePhysics(false);
+		
+		FVector MeshLocation = YutMesh->GetComponentLocation();
+		FVector TraceStart = MeshLocation;
+		FVector TraceEnd = MeshLocation - YutMesh->GetForwardVector() * 200.0f;
+		
+		FHitResult HitResult;
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			TraceStart,
+			TraceEnd,
+			ECC_GameTraceChannel1
+		);
+
+		if (bHit)
+		{
+			UpCnt++;
+			if (UpCnt == 1)
+			{
+				UpwardYut = YutMesh;
+			}
+			else 
+			{
+				UpwardYut = nullptr; 
+			}
+		}
+	}
+	
+	if (UpCnt == 0) return 5; // 모
+	if (UpCnt == 2) return 2; // 개
+	if (UpCnt == 3) return 3; // 걸
+	if (UpCnt == 4) return 4; // 윷
+	
+	if (UpCnt == 1)
+	{
+		if (UpwardYut && UpwardYut->ComponentHasTag(TEXT("BackDo")))
+		{
+			return -1; // 빽도
+		}
+		else
+		{
+			return 1; // 도
+		}
+	}
+
+	return 1;
 }
