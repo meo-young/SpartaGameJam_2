@@ -30,22 +30,28 @@ class SPARTAGAMEJAM_2_API UYutManager : public UObject
 public:
 	UFUNCTION(BlueprintCallable)
 	void Initialize();
+
+	UFUNCTION(BlueprintCallable)
+	void StartNewTurn();
 	
 	void LoadYutData();
+	TArray<FYutResultData> EndTurn();
 
 	UFUNCTION(BlueprintCallable)
 	void StartYutThrow();
-
-	bool CanThrowAgain(int32 YutResult);
+	
 	FYutResultData GetYutData(int32 YutResult);
 	int32 CalculateRandomYut();
+
+	UFUNCTION(BlueprintCallable)
+	bool CanThrowYut() const { return bCanThrow; }
 	
 	TArray<FYutResultData> CachedYutData;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDataTable* YutDataTable;
-
-	bool bIsInProgress;
+	
+	bool bCanThrow;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnThrowFinished OnThrowFinished;
