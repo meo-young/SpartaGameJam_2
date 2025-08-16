@@ -34,17 +34,18 @@ void UStageSubsystem::HandleAITurn()
 {
 	// 1. 윷을 던집니다.
 	// @TODO : 윷 던지는 애니메이션, 윷 결과값에 따른 윷 모델링 조정 필요
-	if (AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode()))
+	AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
 	{
 		GameMode->YutManager->StartYutThrow();
+
+		// 2. 결과 값 중 하나를 선택합니다.
+		// @TODO :
+		TArray<FYutResultData> YutResultData = GameMode->YutManager->EndTurn();
+
+		// 3. 말을 이동시킵니다.
+		//GameMode->TileManager->MoveTile();
 	}
-
-	// 2. 결과 값 중 하나를 선택합니다.
-	// @TODO :
-
-
-	// 3. 말을 이동시킵니다.
-
 
 	// 4. 모두 완주했는 지 확인합니다.
 
