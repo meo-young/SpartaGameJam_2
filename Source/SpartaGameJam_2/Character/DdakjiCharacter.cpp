@@ -1,4 +1,6 @@
 #include "DdakjiCharacter.h"
+
+#include "YutPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -40,6 +42,23 @@ void ADdakjiCharacter::Tick(float DeltaTime)
 		CurrentPos.Z = FMath::Lerp(StartPos.Z, TargetPos.Z, Alpha) + CurveValue * MaxHeight;
 
 		SetActorLocation(CurrentPos);
+	}
+}
+
+void ADdakjiCharacter::BlendToPlayerCamera()
+{
+	if (AYutPlayerController* PC = Cast<AYutPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		if (Camera)
+		{
+			// 블렌드 파라미터를 선언합니다.
+			FViewTargetTransitionParams TransitionParams;
+			TransitionParams.BlendTime = 1.0f;
+			TransitionParams.BlendFunction = VTBlend_Cubic;
+
+			// PlayerController의 시점을 DdakjiCharacter의 Camera로 변경합니다.
+			PC->SetViewTargetWithBlend(this, TransitionParams.BlendTime, TransitionParams.BlendFunction);
+		}
 	}
 }
 

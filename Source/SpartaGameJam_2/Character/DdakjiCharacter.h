@@ -16,6 +16,10 @@ public:
 	ADdakjiCharacter();
 	virtual void Tick(float DeltaTime) override;
 
+	/** 캐릭터의 카메라 시점으로 블렌딩하는 함수입니다. */
+	UFUNCTION(BlueprintCallable)
+	void BlendToPlayerCamera();
+
 	/** 캐릭터의 스프라이트를 변경하는 함수입니다. */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetFlipBook();
