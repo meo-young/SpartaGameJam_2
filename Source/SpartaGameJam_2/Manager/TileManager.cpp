@@ -236,7 +236,6 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			RemainMoveRange = 0;
 
 			// 도착 위치에서 내부로 들어갈 수 있는지 확인 후 목표 방향 및 위치 변경
-			int* InlineTileIndexPtr = CrossTileList.Find(LocationTile);
 			if (InlineTileIndexPtr)
 			{
 				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
@@ -260,7 +259,7 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			}
 
 			// 가운데 위치까지와의 거리
-			int32 CurLocation = PawnLocationIndex % (PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength;
+			int32 CurLocation = PawnLocationIndex % ((PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength);
 			int32 CenterDistance = InnerLength - CurLocation;
 
 			// 중앙까지 이동할 수 있는 횟수를 구한다.

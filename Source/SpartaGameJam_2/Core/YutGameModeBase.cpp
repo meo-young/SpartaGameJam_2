@@ -28,5 +28,10 @@ void AYutGameModeBase::StartPlay()
 	TileManager->CreateStage();
 	TileManager->InitYutPawn();
 
+	if (YutManager)
+	{
+		YutManager->Initialize();
+	}
+
 	GetGameInstance()->GetSubsystem<UStageSubsystem>()->StartStage();
 }

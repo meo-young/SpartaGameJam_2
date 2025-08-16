@@ -1,4 +1,16 @@
 #include "DdakjiCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
+ADdakjiCharacter::ADdakjiCharacter()
+{
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Component"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetRelativeRotation(FRotator(-30.0f, -90.0f, 0.0f));
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
+	Camera->SetupAttachment(SpringArm);
+}
 
 void ADdakjiCharacter::Tick(float DeltaTime)
 {
@@ -36,7 +48,6 @@ void ADdakjiCharacter::JumpToLocation(FVector TargetLocation)
 	StartPos = GetActorLocation();
 	TargetPos = TargetLocation;
 	TargetPos.Z = GetActorLocation().Z;
-	JumpDuration = 0.5f;
 	ElapsedTime = 0.f;
 	bIsJumping = true;
 }
