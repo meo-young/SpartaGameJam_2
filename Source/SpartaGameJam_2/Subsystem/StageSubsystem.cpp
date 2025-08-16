@@ -1,0 +1,62 @@
+#include "Subsystem//StageSubsystem.h"
+#include "YutGameModeBase.h"
+#include "YutManager.h"
+
+void UStageSubsystem::StartStage()
+{
+	// 1. 선 턴 소유자를 결정합니다.
+	SetStartingTurn();
+
+	// 2. 스테이지 로직을 전개합니다.
+	UpdateStage();
+}
+
+void UStageSubsystem::SetStartingTurn()
+{
+	bIsPlayerTurn = FMath::RandBool() ? 1 : 0;
+}
+
+void UStageSubsystem::UpdateStage()
+{
+	// 턴 소유주에 따른 행동 로직을 전개합니다.
+	if (bIsPlayerTurn)
+	{
+		HandlePlayerTurn();
+	}
+	else
+	{
+		HandleAITurn();
+	}
+}
+
+void UStageSubsystem::HandleAITurn()
+{
+	// 1. 윷을 던집니다.
+	// @TODO : 윷 던지는 애니메이션, 윷 결과값에 따른 윷 모델링 조정 필요
+	if (AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->YutManager->StartYutThrow();
+	}
+
+	// 2. 결과 값 중 하나를 선택합니다.
+	// @TODO :
+
+
+	// 3. 말을 이동시킵니다.
+
+
+	// 4. 모두 완주했는 지 확인합니다.
+
+
+	// 5. 턴을 종료합니다.
+	bIsPlayerTurn = true;
+}
+
+void UStageSubsystem::HandlePlayerTurn()
+{
+	// 1. 윷을 던지는 버튼이 활성화 됩니다.
+
+
+	// @TODO : 버튼을 누르면 해당 버튼을 비활성화 합니다.
+	// @TODO : 결과 값에 따라 행동 로직을 다르게 진행 합니다.
+}
