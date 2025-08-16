@@ -1,4 +1,5 @@
 #include "YutManager.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UYutManager::Initialize()
 {
@@ -24,7 +25,6 @@ void UYutManager::LoadYutData()
 			CachedYutData.Add(*YutData);
 		}
 	}
-	
 	UE_LOG(LogTemp, Error, TEXT("Loaded %d YutData"), CachedYutData.Num());
 }
 
@@ -38,6 +38,15 @@ void UYutManager::StartNewTurn()
 
 void UYutManager::StartYutThrow()
 {
+	if (SpawnedYutActor)
+	{
+		YutMeshes.Empty();
+		SpawnedYutActor->Destroy();
+		SpawnedYutActor = nullptr;
+	}
+
+	SpawnYutActor();
+	
 	int32 Result = CalculateRandomYut();
 	FYutResultData YutResult = GetYutData(Result);
 	bCanThrow = YutResult.bCanThrowAgain;
@@ -49,6 +58,8 @@ void UYutManager::StartYutThrow()
 	{
 		EndTurn();
 	}
+
+	ApplyPhysicsImpulse();
 }
 
 TArray<FYutResultData> UYutManager::EndTurn()
@@ -99,4 +110,38 @@ int32 UYutManager::CalculateRandomYut()
 	}
     
 	return 1;
+}
+
+void UYutManager::SpawnYutActor()
+{
+	FActorSpawnParameters SpawnParams;
+	FRotator SpawnRotation = FRotator::ZeroRotator;
+	SpawnedYutActor = GetWorld()->SpawnActor<AActor>(YutActorClass, SpawnLocation, SpawnRotation, SpawnParams);
+	if (SpawnedYutActor)
+	{
+		YutMeshes.Empty(); 
+        
+		TArray<UStaticMeshComponent*> FoundMeshes;
+		SpawnedYutActor->GetComponents<UStaticMeshComponent>(FoundMeshes);
+		for (UStaticMeshComponent* Mesh : FoundMeshes)
+		{
+			YutMeshes.Add(Mesh);
+		}
+	}
+}
+
+void UYutManager::ApplyPhysicsImpulse()
+{
+	for (UStaticMeshComponent* YutMesh : YutMeshes)
+	{
+		YutMesh->SetSimulatePhysics(true);
+		
+		FVector ImpulseDirection = FVector::UpVector;
+		float ImpulseStrength = FMath::RandRange(500.0f, 800.0f);
+		YutMesh->AddImpulse(ImpulseDirection * ImpulseStrength, NAME_None, true);
+
+		// 랜덤 회전
+		FVector AngularImpulse = UKismetMathLibrary::RandomUnitVector() * FMath::RandRange(200.0f, 400.0f);
+		YutMesh->AddAngularImpulseInDegrees(AngularImpulse, NAME_None, true);
+	}
 }
