@@ -4,7 +4,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "StageSubsystem.generated.h"
 
-class ADdakjiCharacter;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTurnEnded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStageEnded);
 
 UCLASS()
 class SPARTAGAMEJAM_2_API UStageSubsystem : public UGameInstanceSubsystem
@@ -12,6 +13,14 @@ class SPARTAGAMEJAM_2_API UStageSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	/** 턴이 끝났을 때 호출되는 델리게이트 입니다. */
+	UPROPERTY(BlueprintAssignable)
+	FOnTurnEnded OnTurnEndedDelegate;
+
+	/** 스테이지가 끝났을 때 호출되는 델리게이트 입니다. */
+	UPROPERTY(BlueprintAssignable)
+	FOnStageEnded OnStageEndedDelegate;
+	
 	/** 스테이지를 시작하는 함수입니다. */
 	UFUNCTION(BlueprintCallable)
 	void StartStage();
