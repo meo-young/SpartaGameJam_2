@@ -80,7 +80,6 @@ void UTileManager::CreateStage()
 	// 행운, 트랩 발판 스폰
 	// 시작, 중앙 위치는 일반 발판
 	// 각 교차점도 일반 발판으로 설정하기
-	//TODO: 꼭짓점은 색이 다른 일반 발판으로 설정하기
 	
 	// 행운 및 트랩 발판을 설정할 인덱스
 	TArray<int32> SpecialTileIndexArr;

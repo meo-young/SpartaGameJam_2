@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "YutGameModeBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAction);
+
 class UTileManager;
 
 UCLASS()
@@ -18,7 +20,11 @@ public:
 
 	virtual void StartPlay();
 
-	void StartTurn();
+	void HandleTurn();
+
+	void PlayerTurn();
+
+	void AITurn();
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
@@ -29,4 +35,9 @@ private:
 
 	// 턴 수
 	int32 TrunCount;
+
+public:
+	// 턴 진행
+	UPROPERTY(BlueprintAssignable)
+	FOnAction OnAction;
 };
