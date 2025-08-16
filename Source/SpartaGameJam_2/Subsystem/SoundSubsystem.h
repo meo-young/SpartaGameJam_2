@@ -18,12 +18,15 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	/** SFX를 재생하는 함수입니다. */
+	UFUNCTION(BlueprintCallable)
 	void PlaySFX(ESFX SFX);
 
 	/** BGM을 재생하는 함수입니다. */
+	UFUNCTION(BlueprintCallable)
 	void PlayBGM(EBGM BGM);
 
 	/** BGM을 중단하는 함수입니다. */
+	UFUNCTION(BlueprintCallable)
 	void StopBGM();
 
 	/** SFX 데이터 테이블에 대한 참조 변수입니다. */

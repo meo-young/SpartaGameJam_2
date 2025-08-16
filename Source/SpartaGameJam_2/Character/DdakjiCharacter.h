@@ -4,17 +4,29 @@
 #include "PaperZDCharacter.h"
 #include "DdakjiCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class SPARTAGAMEJAM_2_API ADdakjiCharacter : public APaperZDCharacter
 {
 	GENERATED_BODY()
 
 public:
+	ADdakjiCharacter();
 	virtual void Tick(float DeltaTime) override;
 
 	/** 목표 위치로 캐릭터를 점프시키는 함수입니다. */ 
 	UFUNCTION(BlueprintCallable)
 	void JumpToLocation(FVector Location);
+
+	/** 스프링 암 컴포넌트 입니다. */
+	UPROPERTY(EditDefaultsOnly, BLueprintReadOnly, Category="컴포넌트")
+	USpringArmComponent* SpringArm;
+
+	/** 카메라 컴포넌트 입니다. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="컴포넌트")
+	UCameraComponent* Camera;
 
 	/** 점프 곡선 커브 변수입니다. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="변수")
@@ -22,7 +34,7 @@ public:
 
 	/** 점프하는 시간을 나타내는 변수입니다. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="변수")
-	float JumpDuration;
+	float JumpDuration = 0.5f;
 
 	/** 최대 점프 높이를 나타내는 변수입니다. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="변수")
