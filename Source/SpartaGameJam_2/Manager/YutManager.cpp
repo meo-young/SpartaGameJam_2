@@ -49,7 +49,7 @@ void UYutManager::StartYutThrow()
 	ApplyPhysicsImpulse();
 
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UYutManager::ShowYutResult, 2.0f);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UYutManager::ShowYutResult, 2.5f);
 }
 
 void UYutManager::ShowYutResult()
