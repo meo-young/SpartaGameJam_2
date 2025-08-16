@@ -1,4 +1,10 @@
 #include "YutManager.h"
+
+#include "DdakjiCharacter.h"
+#include "EngineUtils.h"
+#include "StageSubsystem.h"
+#include "TileManager.h"
+#include "YutGameModeBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UYutManager::Initialize()
@@ -74,8 +80,26 @@ void UYutManager::ShowYutResult()
 		}
 		else
 		{
-			EndTurn();
-			
+			TArray<FYutResultData> YutResultDatas = EndTurn();
+			AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode());
+			for(FYutResultData& YutResultData : YutResultDatas)
+			{
+				uint8 YutResultValue = YutResultData.YutResult;
+				UE_LOG(LogTemp, Warning, TEXT("YUT RESULT: %u"), YutResultValue);
+
+				for (ADdakjiCharacter* Player : TActorRange<ADdakjiCharacter>(GetWorld()))
+				{
+					if (Player)
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Player name : %s"), *Player->GetName());
+						GameMode->TileManager->MoveTile(Player, YutResultValue);
+						break;
+					}
+				}
+			}
+
+			UStageSubsystem* StageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UStageSubsystem>();
+			StageSubsystem->UpdateEndTurn();
 		}
 	}
 	else // 플레이어 턴일 경우
