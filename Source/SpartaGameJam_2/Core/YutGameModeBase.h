@@ -6,8 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "YutGameModeBase.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAction);
-
+class UYutManager;
 class UTileManager;
 
 UCLASS()
@@ -20,10 +19,20 @@ public:
 
 	virtual void StartPlay();
 
-private:
+	void StartTurn();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UTileManager> TileManagerClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UTileManager> TileManager;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UYutManager> YutManagerClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UYutManager> YutManager;
+
+	// 턴 수
+	int32 TurnCount;
 };
