@@ -15,8 +15,7 @@ class SPARTAGAMEJAM_2_API UTileManager : public UObject
 
 public:
 	UTileManager();
-
-public:
+	
 	// 스테이지 생성 함수
 	void CreateStage();
 

@@ -173,10 +173,10 @@ void UTileManager::CreateStage()
 		InnerTileList.IsValidIndex(7))
 	{
 		CrossTileList = {
-		{ InnerTileList[1], 0 },
-		{ InnerTileList[3], 5 },
-		{ InnerTileList[5], 10 },
-		{ InnerTileList[7], 15 },
+		{ OutlineTileList[0], 0 },
+		{ OutlineTileList[5], 2 },
+		{ OutlineTileList[10], 4 },
+		{ OutlineTileList[15], 6 },
 		};
 	}
 }
@@ -185,10 +185,20 @@ void UTileManager::RotationStage()
 {
 	for (auto& CrossTile : CrossTileList)
 	{
-		CrossTile.Value += 1;
+		//CrossTile.Value += 1;
 
-		CrossTile.Value %= OutlineSize;
+		//CrossTile.Value %= OutlineSize;
 	}
 
-	//TODO: 실제로 위치가 갱신되도록 구현해야한다.
+	// 실제로 보여지는 회전 구현
+	
+	// 한번에 파이/10씩 회전 
+	float RotationAngle = 360.f / OutlineSize;
+	FRotator RotationDelta = FRotator(0.f, RotationAngle, 0.f);
+	for (auto Tile : InnerTileList)
+	{
+		FVector CurrentLocation = Tile->GetActorLocation();
+		FVector RotatedLocation = RotationDelta.RotateVector(CurrentLocation);
+		Tile->SetActorLocation(RotatedLocation);
+	}
 }
