@@ -6,7 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "YutGameModeBase.generated.h"
 
-class UStageSubsystem;
 class UYutManager;
 class UTileManager;
 
@@ -20,8 +19,6 @@ public:
 
 	virtual void StartPlay();
 
-	void StartTurn();
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UTileManager> TileManagerClass;
 
@@ -33,7 +30,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UYutManager> YutManager;
-
-	// 턴 수
-	int32 TurnCount;
 };

@@ -1,6 +1,7 @@
-#include "Subsystem//StageSubsystem.h"
+#include "StageSubsystem.h"
 #include "YutGameModeBase.h"
 #include "YutManager.h"
+#include "TileManager.h"
 
 void UStageSubsystem::StartStage()
 {
@@ -65,4 +66,23 @@ void UStageSubsystem::HandlePlayerTurn()
 
 	// @TODO : 버튼을 누르면 해당 버튼을 비활성화 합니다.
 	// @TODO : 결과 값에 따라 행동 로직을 다르게 진행 합니다.
+}
+
+void UStageSubsystem::UpdateEndTurn()
+{
+	// 1. 턴 수를 증가합니다.
+	++TurnCount;
+
+	//TODO
+	// 2. 중심 타일을 회전시킵니다.
+
+
+	// 3. 3번째 턴마다 포탈을 회전시킵니다.
+	if (0 == TurnCount % 3)
+	{
+		if (AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode()))
+		{
+			GameMode->TileManager->RotationStage();
+		}	
+	}
 }

@@ -14,8 +14,6 @@ void AYutGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 
 	check(TileManager);
 	check(YutManager);
-	
-	TurnCount = 0;
 }
 
 void AYutGameModeBase::StartPlay()
@@ -28,6 +26,7 @@ void AYutGameModeBase::StartPlay()
 	}
 
 	TileManager->CreateStage();
+	TileManager->InitYutPawn();
 
 	if (YutManager)
 	{
@@ -35,18 +34,4 @@ void AYutGameModeBase::StartPlay()
 	}
 
 	GetGameInstance()->GetSubsystem<UStageSubsystem>()->StartStage();
-
-	StartTurn();
-}
-
-void AYutGameModeBase::StartTurn()
-{
-
-	// 턴 종료
-	++TurnCount;
-
-	if (0 == TurnCount % 3)
-	{
-		TileManager->RotationStage();
-	}
 }
