@@ -220,17 +220,42 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 	// 내부로 이동할 수 있는 경우의 인덱스
 	int* InlineTileIndexPtr = CrossTileList.Find(LocationTile);
 
-	int32 RemainMoveRange = MoveRange;
+	// 이전에 계산한 이동 예상 경로 제거
+	TargetPawnData->MovePath.Empty();
+
+	int32 RemainMoveRange = FMath::Abs(MoveRange);
 	while (RemainMoveRange)
 	{
-		// 내부로 이동할 수 없고, 외부에서 이동해야할 경우
+		// 외부에서 이동해야할 경우
 		if (TargetPawnData->Direction == EMoveDirection::Outer)
 		{
-			PawnLocationIndex += RemainMoveRange;
-			// 앞으로 간 경우
-			PawnLocationIndex = (PawnLocationIndex >= 20) ? 0 : PawnLocationIndex;
-			// 뒤로 간 경우
-			PawnLocationIndex = (PawnLocationIndex < 0) ? 20 - PawnLocationIndex : PawnLocationIndex;
+			int32 MoveCount = (MoveRange < 0) ? RemainMoveRange * -1 : RemainMoveRange;
+
+			int32 StartIndex = PawnLocationIndex;
+
+			PawnLocationIndex += MoveCount;
+
+			if (MoveRange > 0)
+			{
+				// 앞으로 간 경우
+				PawnLocationIndex = (PawnLocationIndex >= OutlineSize) ? PawnLocationIndex - OutlineSize + 1 : PawnLocationIndex;
+
+				for (int i = 1; i <= RemainMoveRange; ++i)
+				{
+					TargetPawnData->MovePath.Add((StartIndex + i) % OutlineSize);
+				}
+			}
+			else
+			{
+				// 뒤로 간 경우
+				PawnLocationIndex = (PawnLocationIndex < 0) ? OutlineSize - PawnLocationIndex : PawnLocationIndex;
+
+				for (int i = 1; i <= RemainMoveRange; ++i)
+				{
+					int32 TempIndex = (StartIndex - i < 0) ? OutlineSize + StartIndex - i : StartIndex - i;
+					TargetPawnData->MovePath.Add(TempIndex);
+				}
+			}
 
 			Result = PawnLocationIndex;
 			RemainMoveRange = 0;
@@ -255,12 +280,19 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			{
 				PawnLocationIndex = *InlineTileIndexPtr;
 
+				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
+
 				RemainMoveRange -= 1;
 			}
 
 			// 가운데 위치까지와의 거리
 			int32 CurLocation = PawnLocationIndex % ((PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength);
 			int32 CenterDistance = InnerLength - CurLocation;
+
+			for (int i = 1; i < CenterDistance; ++i)
+			{
+				TargetPawnData->MovePath.Add(OutlineSize + CurLocation + i);
+			}
 
 			// 중앙까지 이동할 수 있는 횟수를 구한다.
 			int32 CurMoveRange = RemainMoveRange - CenterDistance;
@@ -270,6 +302,8 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				RemainMoveRange = CurMoveRange;
 
 				PawnLocationIndex = InnerLength * 4;
+
+				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
 				// 목표 방향 변경
 				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
@@ -294,6 +328,8 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			{
 				// 이동할 수 있는 만큼 이동
 				Result = CenterDistance - FMath::Abs(CurMoveRange);
+
+				TargetPawnData->MovePath.Add(OutlineSize + Result);
 
 				RemainMoveRange = 0;
 
@@ -323,11 +359,18 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				// 중앙 발판을 밟고있는 경우 중앙에서 나온다.
 				PawnLocationIndex = IndexDirection + InnerLength - 1;
 
+				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
+
 				RemainMoveRange -= 1;
 			}
 
 			// 외부 위치까지와의 거리
 			int32 CenterDistance = (PawnLocationIndex != 0) ? PawnLocationIndex % InnerLength + 1 : 1;
+
+			for (int i = 1; i < CenterDistance; ++i)
+			{
+				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex - i);
+			}
 
 			// 외부까지 이동할 수 있는 횟수를 구한다.
 			int32 CurMoveRange = RemainMoveRange - CenterDistance;
@@ -337,6 +380,8 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				RemainMoveRange = CurMoveRange;
 
 				PawnLocationIndex = TargetPawnData->TargetIndex;
+
+				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
 				// 목표 방향 변경
 				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
@@ -352,6 +397,8 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				// 최대한 이동
 				Result = TargetPawnData->TargetIndex + CurMoveRange;
 
+				TargetPawnData->MovePath.Add(OutlineSize + Result);
+
 				RemainMoveRange = 0;
 			}
 		}
@@ -364,9 +411,30 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 {
 	int32 TargetIndex = GetMovableTileIndex(TargetPawn, MoveRange);
 
+	FPawnData* TargetPawnData = YutPawnArr.Find(TargetPawn);
+	if (!TargetPawnData)
+	{
+		return;
+	}
+	// 타겟 말의 위치를 찾는다.
+	int32 PawnLocationIndex = TargetPawnData->LocationIndex;
+
 	for (int i = 0; i < MoveRange; ++i)
 	{
+		FVector TargetLocation;
+		int32 CurIndex = TargetPawnData->MovePath[i];
+		if (CurIndex >= OutlineSize)
+		{
+			CurIndex %= OutlineSize;
+			TargetLocation = InnerTileList[CurIndex]->GetActorLocation();
+		}
+		else
+		{
+			TargetLocation = OutlineTileList[CurIndex]->GetActorLocation();
+		}
+
 		// 이동하는 함수 호출
+		TargetPawn->JumpToLocation(TargetLocation);
 	}
 }
 
@@ -384,9 +452,9 @@ void UTileManager::InitYutPawn()
 	for (int i = 0; i < 4; ++i)
 	{
 		FActorSpawnParameters Params;
-		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		ADdakjiCharacter* NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(ADdakjiCharacter::StaticClass(), YutSpawnLocation, FRotator::ZeroRotator, Params);
+		ADdakjiCharacter* NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(YutPawnClass, YutSpawnLocation, FRotator::ZeroRotator, Params);
 
 		FPawnData NewPawnData;
 

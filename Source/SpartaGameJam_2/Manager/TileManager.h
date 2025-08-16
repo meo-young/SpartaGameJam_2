@@ -38,6 +38,9 @@ public:
 	// 목표 노드 인덱스
 	int32 TargetIndex;
 
+	// 이동 예정인 경로
+	TArray<int32> MovePath;
+
 	// 처음 출발지에서 시작할 때 예외 처리를 위한 변수
 	bool bIsSpawn = true;
 };
@@ -58,8 +61,10 @@ public:
 	void RotationStage();
 
 	// 이동 가능 위치 반환
+	UFUNCTION(BlueprintCallable)
 	int32 GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 MoveRange);
 
+	UFUNCTION(BlueprintCallable)
 	void MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange);
 
 private:
@@ -128,5 +133,9 @@ public:
 private:
 	// 플레이어 및 AI의 말 캐싱
 	TMap<TObjectPtr<ADdakjiCharacter>, FPawnData> YutPawnArr;
+
+	// 캐릭터 클래스 참조
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "YutPawn|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ADdakjiCharacter> YutPawnClass;
 #pragma endregion
 };
