@@ -16,7 +16,8 @@ public class SpartaGameJam_2 : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-			"PaperZD"
+			"PaperZD",
+			"Niagara"
 		});
 		
         PublicIncludePaths.AddRange(new string[] {
