@@ -4,8 +4,6 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "StageSubsystem.generated.h"
 
-class ADdakjiCharacter;
-
 UCLASS()
 class SPARTAGAMEJAM_2_API UStageSubsystem : public UGameInstanceSubsystem
 {
@@ -32,10 +30,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandlePlayerTurn();
 
-	/** 각 딱지 캐릭터의 위치 값을 저장하는 변수입니다. */
-	TMap<ADdakjiCharacter, FVector> CharacterPos;
+	/** 턴 종료를 업데이트하는 함수입니다. */
+	void UpdateEndTurn();
 	
 	/** 현재 플레이어 턴인지 상태를 나타내는 변수입니다. */
 	uint8 bIsPlayerTurn : 1 = false;
 	
+	/** 현재 턴의 수를 나타내는 변수입니다, */
+	uint8 TurnCount = 0;
 };
