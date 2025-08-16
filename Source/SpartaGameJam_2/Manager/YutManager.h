@@ -38,9 +38,10 @@ public:
 	TArray<FYutResultData> EndTurn();
 
 	UFUNCTION(BlueprintCallable)
-	void StartYutThrow();
+	void StartYutThrow(bool bIsAI);
 
 	void ShowYutResult();
+	void ProcessNextThrow();
 	
 	FYutResultData GetYutData(int32 YutResult);
 	void SpawnYutActor();
@@ -56,6 +57,7 @@ public:
 	UDataTable* YutDataTable;
 	
 	bool bCanThrow;
+	bool bIsAITurn;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnThrowFinished OnThrowFinished;

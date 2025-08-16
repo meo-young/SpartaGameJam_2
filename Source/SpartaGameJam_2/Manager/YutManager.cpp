@@ -31,13 +31,15 @@ void UYutManager::LoadYutData()
 void UYutManager::StartNewTurn()
 {
 	AvailableYuts.Empty();
-	bCanThrow = true; 
-        
+	bCanThrow = true;
+
 	UE_LOG(LogTemp, Error, TEXT("UYutManager::StartNewTurn"));
 }
 
-void UYutManager::StartYutThrow()
+void UYutManager::StartYutThrow(bool bIsAI)
 {
+	bIsAITurn = bIsAI;
+	
 	if (SpawnedYutActor)
 	{
 		YutMeshes.Empty();
@@ -52,20 +54,42 @@ void UYutManager::StartYutThrow()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UYutManager::ShowYutResult, 2.5f);
 }
 
+
 void UYutManager::ShowYutResult()
 {
 	int32 Result = CalculateYutResult();
 	FYutResultData YutResult = GetYutData(Result);
 	UE_LOG(LogTemp, Error, TEXT("Yut Result: %s (%d)"), *YutResult.ResultName, YutResult.YutResult);
-	bCanThrow = YutResult.bCanThrowAgain;
 	
+	bCanThrow = YutResult.bCanThrowAgain;
 	AvailableYuts.Add(YutResult);
 	OnThrowFinished.Broadcast(YutResult, AvailableYuts);
 
-	if (!bCanThrow)
+	if (bIsAITurn) // AI 턴일 경우
 	{
-		EndTurn();
+		if (bCanThrow)
+		{
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UYutManager::ProcessNextThrow, 3.0f); 
+		}
+		else
+		{
+			EndTurn();
+		}
 	}
+	else // 플레이어 턴일 경우
+	{
+		OnThrowFinished.Broadcast(YutResult, AvailableYuts);
+		if (!bCanThrow)
+		{
+			EndTurn();
+		}
+	}
+}
+
+void UYutManager::ProcessNextThrow()
+{
+	StartYutThrow(true);
 }
 
 TArray<FYutResultData> UYutManager::EndTurn()
