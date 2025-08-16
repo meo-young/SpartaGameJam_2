@@ -6,7 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "YutGameModeBase.generated.h"
 
-class USpawnManager;
 class UStageSubsystem;
 class UYutManager;
 class UTileManager;
@@ -34,12 +33,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UYutManager> YutManager;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
-	TSubclassOf<USpawnManager> SpawnManagerClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
-	TObjectPtr<USpawnManager> SpawnManager;
 
 	// 턴 수
 	int32 TurnCount;

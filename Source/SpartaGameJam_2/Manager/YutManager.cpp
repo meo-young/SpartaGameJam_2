@@ -28,18 +28,32 @@ void UYutManager::LoadYutData()
 	UE_LOG(LogTemp, Error, TEXT("Loaded %d YutData"), CachedYutData.Num());
 }
 
+void UYutManager::StartNewTurn()
+{
+	AvailableYuts.Empty();
+	bCanThrow = true; 
+        
+	UE_LOG(LogTemp, Error, TEXT("UYutManager::StartNewTurn"));
+}
+
 void UYutManager::StartYutThrow()
 {
 	int32 Result = CalculateRandomYut();
 	FYutResultData YutResult = GetYutData(Result);
-	AvailableYuts.Add(YutResult);
+	bCanThrow = YutResult.bCanThrowAgain;
 	
+	AvailableYuts.Add(YutResult);
 	OnThrowFinished.Broadcast(YutResult, AvailableYuts);
+
+	if (!bCanThrow)
+	{
+		EndTurn();
+	}
 }
 
-bool UYutManager::CanThrowAgain(int32 YutResult)
+TArray<FYutResultData> UYutManager::EndTurn()
 {
-	return (YutResult == 4 || YutResult == 5);
+	return AvailableYuts;
 }
 
 FYutResultData UYutManager::GetYutData(int32 YutResult)
