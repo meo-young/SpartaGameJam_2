@@ -41,8 +41,8 @@ public:
 	// 이동 예정인 경로
 	TArray<int32> MovePath;
 
-	// 처음 출발지에서 시작할 때 예외 처리를 위한 변수
-	bool bIsSpawn = true;
+	// 처음 출발지에서 시작할 때 도착 관련 예외 처리를 위한 변수
+	bool bIsStart = false;
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -65,6 +65,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange);
+
+	UFUNCTION(BlueprintCallable)
+	void MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange);
+
+	UFUNCTION(BlueprintCallable)
+	bool GoalCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray);
+
+	//UFUNCTION(BlueprintCallable)
+	//bool GrappleCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray);
 
 private:
 	// 외곽 크기

@@ -245,17 +245,20 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			if (MoveRange > 0)
 			{
 				// 앞으로 간 경우
-				PawnLocationIndex = (PawnLocationIndex >= OutlineSize) ? PawnLocationIndex - OutlineSize + 1 : PawnLocationIndex;
+				PawnLocationIndex = (PawnLocationIndex >= OutlineSize) ? 0 : PawnLocationIndex;
 
 				for (int i = 1; i <= RemainMoveRange; ++i)
 				{
-					TargetPawnData->MovePath.Add((StartIndex + i) % OutlineSize);
+					if (StartIndex + i <= OutlineSize)
+					{
+						TargetPawnData->MovePath.Add((StartIndex + i) % OutlineSize);
+					}
 				}
 			}
 			else
 			{
 				// 뒤로 간 경우
-				PawnLocationIndex = (PawnLocationIndex < 0) ? OutlineSize - PawnLocationIndex : PawnLocationIndex;
+				PawnLocationIndex = (PawnLocationIndex < 0) ? 0 : PawnLocationIndex;
 
 				for (int i = 1; i <= RemainMoveRange; ++i)
 				{
@@ -440,7 +443,7 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 	// 타겟 말의 위치를 찾는다.
 	int32 PawnLocationIndex = TargetPawnData->LocationIndex;
 
-	for (int i = 0; i < MoveRange; ++i)
+	for (int i = 0; i < TargetPawnData->MovePath.Num(); ++i)
 	{
 		FVector TargetLocation;
 		int32 CurIndex = TargetPawnData->MovePath[i];
@@ -465,6 +468,51 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 
 	TargetPawnData->LocationIndex = TargetPawnData->MovePath.Last() % OutlineSize;
 	TargetPawnData->MovePath.Empty();
+	TargetPawnData->bIsStart = true;
+
+	TArray<int> Test{ MoveRange };
+	GoalCheck(TargetPawn, Test);
+}
+
+void UTileManager::MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange)
+{
+	int32 i = 0;
+	for (auto& e : YutPawnArr)
+	{
+		if (i != TargetCharacterIndex)
+		{
+			++i;
+			continue;
+		}
+
+		MoveTile(e.Key, MoveRange);
+	}
+}
+
+bool UTileManager::GoalCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray)
+{
+	int32 ResultIndex = GetMovableTileIndex(TargetPawn, MoveArray[0]);
+
+	FPawnData* TargetPawnData = YutPawnArr.Find(TargetPawn);
+	if (!TargetPawnData)
+	{
+		return false;
+	}
+
+	for (int32 i = 0; i < MoveArray.Num(); ++i)
+	{
+		if (ResultIndex == 0 && TargetPawnData->bIsStart == true)
+		{
+			return true;
+		}
+
+		if (i != 0)
+		{
+			ResultIndex = GetMovableTileIndex(TargetPawn, ResultIndex);
+		}
+	}
+
+	return false;
 }
 
 void UTileManager::InitYutPawn()
@@ -477,7 +525,7 @@ void UTileManager::InitYutPawn()
 
 	FVector YutSpawnLocation = OutlineTileList[0]->GetActorLocation();
 
-	// 플레이어 수 2, 2개의 말을 사용하기 때문에 4개의 말 생성 및 캐싱
+	// 플레이어 수 1, 2개의 말을 사용하기 때문에 4개의 말 생성 및 캐싱
 	for (int i = 0; i < 2; ++i)
 	{
 		FActorSpawnParameters Params;
@@ -489,13 +537,13 @@ void UTileManager::InitYutPawn()
 
 		FPawnData NewPawnData;
 
-		if (i < 1)
+		if (i == 1)
 		{
 			NewPawnData = { ETeamType::Team1, 0, EMoveDirection::Outer };
 		}
 		else
 		{
-			NewPawnData = { ETeamType::Team2, 0, EMoveDirection::Outer};
+			NewPawnData = { ETeamType::Team2, 0, EMoveDirection::Outer };
 		}
 
 		YutPawnArr.Add({ NewPawn, NewPawnData });
