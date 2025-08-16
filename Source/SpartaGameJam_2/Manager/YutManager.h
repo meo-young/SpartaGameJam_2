@@ -39,10 +39,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StartYutThrow();
+
+	void ShowYutResult();
 	
 	FYutResultData GetYutData(int32 YutResult);
-	int32 CalculateRandomYut();
-
+	void SpawnYutActor();
+	void ApplyPhysicsImpulse();
+	int32 CalculateYutResult();
+	
 	UFUNCTION(BlueprintCallable)
 	bool CanThrowYut() const { return bCanThrow; }
 	
@@ -57,4 +61,16 @@ public:
 	FOnThrowFinished OnThrowFinished;
 
 	TArray<FYutResultData> AvailableYuts;
+	
+	UPROPERTY()
+	TArray<UStaticMeshComponent*> YutMeshes;
+	
+	UPROPERTY()
+	AActor* SpawnedYutActor;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> YutActorClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector SpawnLocation;
 };
