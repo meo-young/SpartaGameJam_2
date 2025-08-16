@@ -195,9 +195,16 @@ void UTileManager::RotationStage()
 	{
 		CrossTileList.Add(OutlineTileList[TargetIndexArr[i]], i * InnerLength);
 	}
-
-
-	//TODO: 실제로 위치가 갱신되도록 구현해야한다.
+  
+	// 한번에 파이/10씩 회전 
+	float RotationAngle = 360.f / OutlineSize;
+	FRotator RotationDelta = FRotator(0.f, RotationAngle, 0.f);
+	for (auto Tile : InnerTileList)
+	{
+		FVector CurrentLocation = Tile->GetActorLocation();
+		FVector RotatedLocation = RotationDelta.RotateVector(CurrentLocation);
+		Tile->SetActorLocation(RotatedLocation);
+	}
 }
 
 int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 MoveRange)
