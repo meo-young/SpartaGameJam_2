@@ -69,7 +69,7 @@ void UYutManager::ShowYutResult()
 	
 	bCanThrow = YutResult.bCanThrowAgain;
 	AvailableYuts.Add(YutResult);
-	//OnThrowFinished.Broadcast(YutResult, AvailableYuts);
+	OnThrowFinished.Broadcast(YutResult, AvailableYuts);
 
 	if (bIsAITurn) // AI 턴일 경우
 	{
@@ -104,7 +104,7 @@ void UYutManager::ShowYutResult()
 	}
 	else // 플레이어 턴일 경우
 	{
-		OnThrowFinished.Broadcast(YutResult, AvailableYuts);
+		//OnThrowFinished.Broadcast(YutResult, AvailableYuts);
 		if (!bCanThrow)
 		{
 			EndTurn();
