@@ -6,6 +6,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTurnEnded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStageEnded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerTurn);
 
 UCLASS()
 class SPARTAGAMEJAM_2_API UStageSubsystem : public UGameInstanceSubsystem
@@ -13,6 +14,10 @@ class SPARTAGAMEJAM_2_API UStageSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	/** 턴이 끝났을 때 호출되는 델리게이트 입니다. */
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerTurn OnPlayerTurnDelegate;
+
 	/** 턴이 끝났을 때 호출되는 델리게이트 입니다. */
 	UPROPERTY(BlueprintAssignable)
 	FOnTurnEnded OnTurnEndedDelegate;
@@ -46,6 +51,7 @@ public:
 	void UpdateEndTurn();
 	
 	/** 현재 플레이어 턴인지 상태를 나타내는 변수입니다. */
+	UPROPERTY(BlueprintReadWrite)
 	uint8 bIsPlayerTurn : 1 = false;
 	
 	/** 현재 턴의 수를 나타내는 변수입니다, */

@@ -8,6 +8,8 @@ void UStageSubsystem::StartStage()
 	// 1. 선 턴 소유자를 결정합니다.
 	SetStartingTurn();
 
+	bIsPlayerTurn = true;
+
 	// 2. 스테이지 로직을 전개합니다.
 	UpdateStage();
 }
@@ -63,6 +65,10 @@ void UStageSubsystem::HandleAITurn()
 void UStageSubsystem::HandlePlayerTurn()
 {
 	// 1. 윷을 던지는 버튼이 활성화 됩니다.
+	if (OnPlayerTurnDelegate.IsBound())
+	{
+		OnPlayerTurnDelegate.Broadcast();
+	}
 
 
 	// @TODO : 버튼을 누르면 해당 버튼을 비활성화 합니다.
@@ -74,16 +80,7 @@ void UStageSubsystem::UpdateEndTurn()
 	// 1. 턴 수를 증가합니다.
 	++TurnCount;
 
-	//TODO
-	// 2. 중심 타일을 회전시킵니다.
+	bIsPlayerTurn = !bIsPlayerTurn;
 
-
-	// 3. 3번째 턴마다 포탈을 회전시킵니다.
-	if (0 == TurnCount % 3)
-	{
-		if (AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode()))
-		{
-			GameMode->TileManager->RotationStage();
-		}	
-	}
+	UpdateStage();
 }

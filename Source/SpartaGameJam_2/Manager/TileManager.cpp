@@ -266,12 +266,15 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 
 			Result = PawnLocationIndex;
 			RemainMoveRange = 0;
+			
+			// 내부로 이동할 수 있는 경우의 인덱스
+			int* CurInlineTileIndexPtr = CrossTileList.Find(OutlineTileList[Result]);
 
 			// 도착 위치에서 내부로 들어갈 수 있는지 확인 후 목표 방향 및 위치 변경
-			if (InlineTileIndexPtr)
+			if (CurInlineTileIndexPtr)
 			{
-				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
-				TargetPawnData->TargetIndex = InnerLength * 4;
+				//TargetPawnData->Direction = EMoveDirection::OutertoCenter;
+				//TargetPawnData->TargetIndex = InnerLength * 4;
 			}
 			else
 			{
@@ -285,7 +288,7 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			// 외부에서 내부로 이동하려는 경우 내부로 한칸 이동
 			if (InlineTileIndexPtr)
 			{
-				PawnLocationIndex = *InlineTileIndexPtr;
+				PawnLocationIndex = (*InlineTileIndexPtr == 0) ? 1 : *InlineTileIndexPtr;
 
 				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
@@ -293,11 +296,22 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			}
 
 			// 가운데 위치까지와의 거리
-			int32 CurLocation = PawnLocationIndex % ((PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength);
-			int32 CenterDistance = InnerLength - CurLocation;
+			int32 Mod = (PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength;
+			int32 CurLocation = 0;
+			if (Mod == 0)
+			{
+				CurLocation = 0;
+			}
+			else
+			{
+				CurLocation = PawnLocationIndex / Mod;
+			}
+			//int32 CenterDistance = InnerLength - CurLocation;
+			int32 CenterDistance = CurLocation;
 
 			for (int i = 1; i < CenterDistance; ++i)
 			{
+				// 
 				TargetPawnData->MovePath.Add(OutlineSize + CurLocation + i);
 			}
 
@@ -441,8 +455,16 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 		}
 
 		// 이동하는 함수 호출
-		TargetPawn->JumpToLocation(TargetLocation);
+		FTimerHandle MoveTimer;
+
+		GetWorld()->GetTimerManager().SetTimer(MoveTimer, FTimerDelegate::CreateLambda([=, this]()
+			{
+				TargetPawn->JumpToLocation(TargetLocation + GetPading());
+			}), 0.5f * (i + 1), false);
 	}
+
+	TargetPawnData->LocationIndex = TargetPawnData->MovePath.Last() % OutlineSize;
+	TargetPawnData->MovePath.Empty();
 }
 
 void UTileManager::InitYutPawn()
@@ -456,24 +478,31 @@ void UTileManager::InitYutPawn()
 	FVector YutSpawnLocation = OutlineTileList[0]->GetActorLocation();
 
 	// 플레이어 수 2, 2개의 말을 사용하기 때문에 4개의 말 생성 및 캐싱
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 2; ++i)
 	{
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		ADdakjiCharacter* NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(YutPawnClass, YutSpawnLocation, FRotator::ZeroRotator, Params);
+		ADdakjiCharacter* NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(YutPawnClass, YutSpawnLocation + Pading, FRotator::ZeroRotator, Params);
+
+		//NewPawn->
 
 		FPawnData NewPawnData;
 
-		if (i < 2)
+		if (i < 1)
 		{
-			NewPawnData = { ETeamType::Team1, 0, EMoveDirection::OutertoCenter };
+			NewPawnData = { ETeamType::Team1, 0, EMoveDirection::Outer };
 		}
 		else
 		{
-			NewPawnData = { ETeamType::Team2, 0, EMoveDirection::OutertoCenter };
+			NewPawnData = { ETeamType::Team2, 0, EMoveDirection::Outer};
 		}
 
 		YutPawnArr.Add({ NewPawn, NewPawnData });
 	}
+}
+
+FVector UTileManager::GetPading()
+{
+	return Pading;
 }

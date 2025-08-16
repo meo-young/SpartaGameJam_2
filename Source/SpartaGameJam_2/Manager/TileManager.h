@@ -129,12 +129,22 @@ public:
 	// 말 스폰 및 캐싱
 	void InitYutPawn();
 
-private:
+	FVector GetPading();
+
+public:
 	// 플레이어 및 AI의 말 캐싱
 	TMap<TObjectPtr<ADdakjiCharacter>, FPawnData> YutPawnArr;
 
 	// 캐릭터 클래스 참조
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "YutPawn|Class", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ADdakjiCharacter> YutPawnClass;
+
+	// 폰 위치에 대한 패딩
+	FVector Pading = { 0.f, 0.f, 16.f };
 #pragma endregion
+
+public:
+	
+
+	FTimerDelegate MoveTimerDelegate;
 };
