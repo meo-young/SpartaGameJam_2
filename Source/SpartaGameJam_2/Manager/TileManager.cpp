@@ -54,7 +54,6 @@ void UTileManager::CreateStage()
 	
 	// 내부 노드 위치 설정
 
-	// 아래, 오른쪽, 위, 왼쪽
 	FVector Directions[4] = {
 		FVector(1, 0, 0),
 		FVector(0, 1, 0),

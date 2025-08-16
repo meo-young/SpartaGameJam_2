@@ -20,24 +20,10 @@ public:
 
 	virtual void StartPlay();
 
-	void HandleTurn();
-
-	void PlayerTurn();
-
-	void AITurn();
-
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UTileManager> TileManagerClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UTileManager> TileManager;
-
-	// 턴 수
-	int32 TrunCount;
-
-public:
-	// 턴 진행
-	UPROPERTY(BlueprintAssignable)
-	FOnAction OnAction;
 };
