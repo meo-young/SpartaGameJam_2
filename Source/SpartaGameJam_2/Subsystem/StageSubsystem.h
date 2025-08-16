@@ -31,9 +31,6 @@ public:
 	/** Player Turn일 때 로직을 전개하는 함수입니다. */
 	UFUNCTION(BlueprintCallable)
 	void HandlePlayerTurn();
-
-	/** 각 딱지 캐릭터의 위치 값을 저장하는 변수입니다. */
-	TMap<ADdakjiCharacter, FVector> CharacterPos;
 	
 	/** 현재 플레이어 턴인지 상태를 나타내는 변수입니다. */
 	uint8 bIsPlayerTurn : 1 = false;
