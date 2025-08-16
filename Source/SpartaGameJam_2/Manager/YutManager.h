@@ -15,7 +15,7 @@ struct FYutResultData : public FTableRowBase
 	FString ResultName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Probability;
+	UTexture2D* ResultTexture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bCanThrowAgain;

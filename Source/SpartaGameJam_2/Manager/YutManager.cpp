@@ -89,7 +89,6 @@ FYutResultData UYutManager::GetYutData(int32 YutResult)
 	FYutResultData DefaultResult;
 	DefaultResult.YutResult = 1;
 	DefaultResult.ResultName = TEXT("도");
-	DefaultResult.Probability = 20.0f;
 	DefaultResult.bCanThrowAgain = false;
 	return DefaultResult;
 }
