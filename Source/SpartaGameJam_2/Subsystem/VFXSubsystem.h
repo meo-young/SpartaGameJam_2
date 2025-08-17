@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "VFXSubsystem.generated.h"
 
+enum class EVFX : uint8;
 struct FVFXTableRowBase;
 
 UCLASS()
@@ -13,6 +14,9 @@ class SPARTAGAMEJAM_2_API UVFXSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnVFX(EVFX VFX, const FVector SpawnLocation);
 
 	/** VFX 데이터 테이블에 대한 참조 변수입니다. */
 	UPROPERTY()

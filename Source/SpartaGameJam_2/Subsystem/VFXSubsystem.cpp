@@ -1,4 +1,5 @@
 #include "Subsystem/VFXSubsystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "VFXTableRowBase.h"
 
 void UVFXSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -14,5 +15,13 @@ void UVFXSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("VFX 참조 실패했습니다."));
+	}
+}
+
+void UVFXSubsystem::SpawnVFX(EVFX VFX, const FVector SpawnLocation)
+{
+	if (UNiagaraSystem* NiagaraSystem =	VFXDataTableRows[static_cast<int>(VFX)]->NiagaraSystem)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, SpawnLocation, FRotator::ZeroRotator);
 	}
 }
