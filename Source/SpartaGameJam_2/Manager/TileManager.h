@@ -163,7 +163,10 @@ public:
 
 	// 캐릭터 클래스 참조
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "YutPawn|Class", meta = (AllowPrivateAccess = true))
-	TSubclassOf<ADdakjiCharacter> YutPawnClass;
+	TSubclassOf<ADdakjiCharacter> RedYutPawnClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "YutPawn|Class", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ADdakjiCharacter> BlueYutPawnClass;
 
 	// 폰 위치에 대한 패딩
 	FVector Pading = { 0.f, 0.f, 16.f };

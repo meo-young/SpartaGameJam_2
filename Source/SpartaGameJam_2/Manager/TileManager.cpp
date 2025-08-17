@@ -275,18 +275,21 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			RemainMoveRange = 0;
 			
 			// 내부로 이동할 수 있는 경우의 인덱스
-			int* CurInlineTileIndexPtr = CrossTileList.Find(OutlineTileList[Result]);
+			if (OutlineTileList.Contains(Result))
+			{
+				int* CurInlineTileIndexPtr = CrossTileList.Find(OutlineTileList[Result]);
 
-			// 도착 위치에서 내부로 들어갈 수 있는지 확인 후 목표 방향 및 위치 변경
-			if (CurInlineTileIndexPtr)
-			{
-				//TargetPawnData->Direction = EMoveDirection::OutertoCenter;
-				//TargetPawnData->TargetIndex = InnerLength * 4;
-			}
-			else
-			{
-				TargetPawnData->Direction = EMoveDirection::Outer;
-				TargetPawnData->TargetIndex = OutlineSize - 1;
+				// 도착 위치에서 내부로 들어갈 수 있는지 확인 후 목표 방향 및 위치 변경
+				if (CurInlineTileIndexPtr)
+				{
+					//TargetPawnData->Direction = EMoveDirection::OutertoCenter;
+					//TargetPawnData->TargetIndex = InnerLength * 4;
+				}
+				else
+				{
+					TargetPawnData->Direction = EMoveDirection::Outer;
+					TargetPawnData->TargetIndex = OutlineSize - 1;
+				}
 			}
 		}
 		// 외부에서 내부로 이동할 수 있는 경우
@@ -300,10 +303,15 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
 				RemainMoveRange -= 1;
+
+				if (RemainMoveRange == 0)
+				{
+					Result = PawnLocationIndex;
+					continue;
+				}
 			}
 
 			// 가운데 위치까지와의 거리
-			//@TODO 이동 위치에 대해 문제가 있음
 			int32 Mod = (PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength;
 			int32 CurLocation = 0;
 			if (Mod == 0)
@@ -314,28 +322,31 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			{
 				CurLocation = PawnLocationIndex / Mod;
 			}
-			//int32 CenterDistance = InnerLength - CurLocation;
-			int32 CenterDistance = CurLocation;
 
-			for (int i = 1; i < CenterDistance; ++i)
+			int32 CenterDistance = CurLocation + InnerLength;
+
+			for (int i = 0; i < RemainMoveRange; ++i)
 			{
 				// 
-				TargetPawnData->MovePath.Add(OutlineSize + CurLocation + i);
+				TargetPawnData->MovePath.Add(OutlineSize + CurLocation + CenterDistance + i);
 			}
 
 			// 중앙까지 이동할 수 있는 횟수를 구한다.
-			int32 CurMoveRange = RemainMoveRange - CenterDistance;
+			//RemainMoveRange = RemainMoveRange - CurLocation;
+
 			// 중앙까지 이동할 수 있는 경우
-			if (CurMoveRange >= 0)
+			//@TODO 이동 위치에 대해 문제가 있음
+			int32 RemainDistance = CenterDistance - RemainMoveRange;
+			if (RemainDistance <= 0)
 			{
-				RemainMoveRange = CurMoveRange;
+				RemainMoveRange -= CenterDistance;
 
 				PawnLocationIndex = InnerLength * 4;
 
 				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
 				// 목표 방향 변경
-				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
+				TargetPawnData->Direction = EMoveDirection::CentertoOuter;
 
 				// 목표 위치 변경
 				// 가운데가 바라보고 있는 방향
@@ -347,16 +358,16 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				int32 IndexDirection = YutCenterTile->GetIndexDirection();
 				TargetPawnData->TargetIndex = IndexDirection;
 
-				if (CurMoveRange == 0)
+				if (CenterDistance == 0)
 				{
 					Result = PawnLocationIndex;
 				}
 			}
 			// 중앙까지 이동할 수 없는 경우
-			else if (CurMoveRange < 0)
+			else if (RemainDistance > 0)
 			{
 				// 이동할 수 있는 만큼 이동
-				Result = CenterDistance - FMath::Abs(CurMoveRange);
+				Result = CenterDistance - FMath::Abs(RemainMoveRange);
 
 				TargetPawnData->MovePath.Add(OutlineSize + Result);
 
@@ -413,7 +424,7 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 				TargetPawnData->MovePath.Add(OutlineSize + PawnLocationIndex);
 
 				// 목표 방향 변경
-				TargetPawnData->Direction = EMoveDirection::OutertoCenter;
+				TargetPawnData->Direction = EMoveDirection::Outer;
 
 				if (CurMoveRange == 0)
 				{
@@ -618,18 +629,19 @@ void UTileManager::InitYutPawn()
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		ADdakjiCharacter* NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(YutPawnClass, YutSpawnLocation + Pading, FRotator::ZeroRotator, Params);
-
+		ADdakjiCharacter* NewPawn = nullptr;
 		//NewPawn->
 
 		FPawnData NewPawnData;
 
 		if (i == 1)
 		{
+			NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(RedYutPawnClass, YutSpawnLocation + Pading, FRotator::ZeroRotator, Params);
 			NewPawnData = { ETeamType::Team1, 0, EMoveDirection::Outer };
 		}
 		else
 		{
+			NewPawn = GetWorld()->SpawnActor<ADdakjiCharacter>(BlueYutPawnClass, YutSpawnLocation + Pading, FRotator::ZeroRotator, Params);
 			NewPawnData = { ETeamType::Team2, 0, EMoveDirection::Outer };
 		}
 
