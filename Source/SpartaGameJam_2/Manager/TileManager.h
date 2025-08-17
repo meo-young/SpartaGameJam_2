@@ -69,11 +69,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange);
 
+	// 도착할 수 있는지 확인하는 함수
 	UFUNCTION(BlueprintCallable)
 	bool GoalCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray);
 
-	//UFUNCTION(BlueprintCallable)
-	//bool GrappleCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray);
+	// 다른 말을 잡을 수 있는지 확인하는 함수
+	UFUNCTION(BlueprintCallable)
+	bool WillGrappleCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray);
+
+	// 말을 시작 지점으로 날리는 함수
+	UFUNCTION(BlueprintCallable)
+	void GrappleTarget(ADdakjiCharacter* TargetPawn);
 
 private:
 	// 외곽 크기
@@ -121,17 +127,28 @@ private:
 	// 행운 발판 수
 	int32 LuckyTileCount;
 
+#pragma region TileList
 	// 외곽 액터 캐싱 목록
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile|List", meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<AYutTile>> OutlineTileList;
 
 	// 내부 액터 캐싱 목록
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile|List", meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<AYutTile>> InnerTileList;
 
 	// 교차로 위치 캐싱
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile|List", meta = (AllowPrivateAccess = true))
 	TMap<TObjectPtr<AYutTile>, int32> CrossTileList;
+
+	// 트랩 위치 캐싱
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile|List", meta = (AllowPrivateAccess = true))
+	TMap<int32, TObjectPtr<AYutTile>> TrapTileList;
+
+	// 행운 위치 캐싱
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile|List", meta = (AllowPrivateAccess = true))
+	TMap<int32, TObjectPtr<AYutTile>> LuckyTileList;
+
+#pragma endregion
 
 #pragma region YutPawn
 public:
@@ -152,8 +169,5 @@ public:
 	FVector Pading = { 0.f, 0.f, 16.f };
 #pragma endregion
 
-public:
-	
 
-	FTimerDelegate MoveTimerDelegate;
 };

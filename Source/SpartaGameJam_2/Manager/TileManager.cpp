@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "DdakjiCharacter.h"
 #include "YutCenterTile.h"
+#include "VFXSubsystem.h"
+#include "VFX.h"
 
 UTileManager::UTileManager()
 {
@@ -132,6 +134,7 @@ void UTileManager::CreateStage()
 		else if (SpecialTileIndexArr.Contains(i) && RemainTrapTileCount && TrapTileClass)
 		{
 			Spawned = GetWorld()->SpawnActor<AYutTile>(TrapTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+			TrapTileList.Add({ i, Spawned });
 
 			--RemainTrapTileCount;
 		}
@@ -139,6 +142,7 @@ void UTileManager::CreateStage()
 		else if (SpecialTileIndexArr.Contains(i) && RemainLuckyTileCount && LuckyTileClass)
 		{
 			Spawned = GetWorld()->SpawnActor<AYutTile>(LuckyTileClass, SpawnLocationArr[i], FRotator::ZeroRotator, Params);
+			LuckyTileList.Add({ i, Spawned });
 
 			--RemainLuckyTileCount;
 		}
@@ -258,7 +262,7 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			else
 			{
 				// 뒤로 간 경우
-				PawnLocationIndex = (PawnLocationIndex < 0) ? 0 : PawnLocationIndex;
+				PawnLocationIndex = (PawnLocationIndex < 0) ? 20 - PawnLocationIndex : 0;
 
 				for (int i = 1; i <= RemainMoveRange; ++i)
 				{
@@ -442,6 +446,8 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 	}
 	// 타겟 말의 위치를 찾는다.
 	int32 PawnLocationIndex = TargetPawnData->LocationIndex;
+	
+	TargetPawnData->bIsStart = true;
 
 	for (int i = 0; i < TargetPawnData->MovePath.Num(); ++i)
 	{
@@ -468,10 +474,34 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 
 	TargetPawnData->LocationIndex = TargetPawnData->MovePath.Last() % OutlineSize;
 	TargetPawnData->MovePath.Empty();
-	TargetPawnData->bIsStart = true;
 
-	TArray<int> Test{ MoveRange };
-	GoalCheck(TargetPawn, Test);
+	// 도착 했는지 확인하는 로직
+	if (TargetPawnData->LocationIndex == 0 && TargetPawnData->bIsStart == true)
+	{
+		TargetPawn->SetActorHiddenInGame(true);
+		YutPawnArr.Remove(TargetPawn);
+	}
+	
+	// 다른 말을 잡았는지 확인하는 로직
+	for (auto& e : YutPawnArr)
+	{
+		if (TargetPawn != e.Key &&
+			TargetPawnData->OwnerTeam != e.Value.OwnerTeam &&
+			TargetPawnData->LocationIndex == e.Value.LocationIndex)
+		{
+			GrappleTarget(e.Key);
+		}
+	}
+	
+	// 이벤트 발판에 도착했는지 확인하는 로직
+	if (TrapTileList.Find(TargetPawnData->LocationIndex))
+	{
+		// 함정 이벤트 실행
+	}
+	else if (LuckyTileList.Find(TargetPawnData->LocationIndex))
+	{
+		// 행운 이벤트 실행
+	}
 }
 
 void UTileManager::MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange)
@@ -513,6 +543,58 @@ bool UTileManager::GoalCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArr
 	}
 
 	return false;
+}
+
+bool UTileManager::WillGrappleCheck(ADdakjiCharacter* TargetPawn, TArray<int32> MoveArray)
+{
+	int32 ResultIndex = GetMovableTileIndex(TargetPawn, MoveArray[0]);
+
+	FPawnData* TargetPawnData = YutPawnArr.Find(TargetPawn);
+	if (!TargetPawnData)
+	{
+		return false;
+	}
+
+	for (int32 i = 0; i < MoveArray.Num(); ++i)
+	{
+		for (auto& e : YutPawnArr)
+		{
+			if (ResultIndex == e.Value.LocationIndex)
+			{
+				return true;
+			}
+		}
+
+		if (i != 0)
+		{
+			ResultIndex = GetMovableTileIndex(TargetPawn, ResultIndex);
+		}
+	}
+
+	return false;
+}
+
+void UTileManager::GrappleTarget(ADdakjiCharacter* TargetPawn)
+{
+	if (TargetPawn)
+	{
+		FPawnData* TargetPawnData = YutPawnArr.Find(TargetPawn);
+		if (!TargetPawnData)
+		{
+			return;
+		}
+
+		TargetPawnData->LocationIndex = 0;
+		TargetPawnData->Direction = EMoveDirection::Outer;
+		TargetPawnData->TargetIndex = OutlineSize - 1;
+		TargetPawnData->MovePath.Empty();
+		TargetPawnData->bIsStart = false;
+
+		TargetPawn->JumpToLocation(OutlineTileList[0]->GetActorLocation() + GetPading());
+
+		UVFXSubsystem* VFXSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UVFXSubsystem>();
+		VFXSubsystem->SpawnVFX(EVFX::Thunder, OutlineTileList[0]->GetActorLocation() + GetPading());
+	}
 }
 
 void UTileManager::InitYutPawn()
