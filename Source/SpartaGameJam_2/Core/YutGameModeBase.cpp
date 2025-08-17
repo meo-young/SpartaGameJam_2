@@ -16,10 +16,8 @@ void AYutGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 	check(YutManager);
 }
 
-void AYutGameModeBase::StartPlay()
+void AYutGameModeBase::StartGame()
 {
-	Super::StartPlay();
-
 	if (!TileManager)
 	{
 		return;

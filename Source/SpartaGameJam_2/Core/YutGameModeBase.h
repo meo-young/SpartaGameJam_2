@@ -16,8 +16,9 @@ class SPARTAGAMEJAM_2_API AYutGameModeBase : public AGameModeBase
 	
 public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage);
-
-	virtual void StartPlay();
+	
+	UFUNCTION(BlueprintCallable)
+	void StartGame();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Manager", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UTileManager> TileManagerClass;
