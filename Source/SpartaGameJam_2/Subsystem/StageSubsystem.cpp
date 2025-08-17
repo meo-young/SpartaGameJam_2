@@ -1,5 +1,4 @@
 #include "StageSubsystem.h"
-
 #include "DdakjiCharacter.h"
 #include "EngineUtils.h"
 #include "YutGameModeBase.h"
@@ -49,13 +48,6 @@ void UStageSubsystem::HandleAITurn()
 	{
 		GameMode->YutManager->StartYutThrow(true);
 	}
-	
-
-	// 6. 턴 종료 델리게이트를 호출합니다.
-	if (OnTurnEndedDelegate.IsBound())
-	{
-		OnTurnEndedDelegate.Broadcast();
-	}
 }
 
 void UStageSubsystem::HandlePlayerTurn()
@@ -82,4 +74,10 @@ void UStageSubsystem::UpdateEndTurn()
 	bIsPlayerTurn = !bIsPlayerTurn;
 
 	UpdateStage();
+
+	// 턴 종료 델리게이트를 호출합니다.
+	if (OnTurnEndedDelegate.IsBound())
+	{
+		OnTurnEndedDelegate.Broadcast();
+	}
 }

@@ -82,20 +82,44 @@ void UYutManager::ShowYutResult()
 		{
 			TArray<FYutResultData> YutResultDatas = EndTurn();
 			AYutGameModeBase* GameMode = Cast<AYutGameModeBase>(GetWorld()->GetAuthGameMode());
-			for(FYutResultData& YutResultData : YutResultDatas)
-			{
-				uint8 YutResultValue = YutResultData.YutResult;
-				UE_LOG(LogTemp, Warning, TEXT("YUT RESULT: %u"), YutResultValue);
 
-				for (ADdakjiCharacter* Player : TActorRange<ADdakjiCharacter>(GetWorld()))
+			if (GameMode)
+			{
+				float AccumulatedDelay = 0.f; // 지금까지 대기한 시간 누적
+
+				for (const FYutResultData& YutResultData : YutResultDatas)
 				{
-					if (Player)
+					uint8 YutResultValue = YutResultData.YutResult;
+
+					// 이동에 필요한 시간 계산 (한 칸당 0.5초라면)
+					float MoveDuration = YutResultValue * 0.5f;
+
+					if (AccumulatedDelay <= 0.0f)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Player name : %s"), *Player->GetName());
-						GameMode->TileManager->MoveTile(Player, YutResultValue);
-						OnYutUsed.Broadcast(YutResultData);
+						GameMode->TileManager->MoveTile_Index(0, YutResultValue);
+						UE_LOG(LogTemp, Warning, TEXT("YUT RESULT: %u"), YutResultValue);
 						break;
 					}
+					else
+					{
+						// AccumulatedDelay 후에 실행되도록 예약
+						FTimerHandle MoveTimerHandle;
+						GetWorld()->GetTimerManager().SetTimer(
+							MoveTimerHandle,
+							FTimerDelegate::CreateLambda([GameMode, YutResultValue]()
+							{
+								GameMode->TileManager->MoveTile_Index(0, YutResultValue);
+								UE_LOG(LogTemp, Warning, TEXT("YUT RESULT: %u"), YutResultValue);
+							}),
+							AccumulatedDelay,
+							false
+						);	
+					}
+
+					OnYutUsed.Broadcast(YutResultData);
+
+					// 다음 이동을 위해 대기시간 누적
+					AccumulatedDelay += MoveDuration;
 				}
 			}
 

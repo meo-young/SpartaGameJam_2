@@ -509,13 +509,12 @@ void UTileManager::MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange)
 	int32 i = 0;
 	for (auto& e : YutPawnArr)
 	{
-		if (i != TargetCharacterIndex)
+		if (i == TargetCharacterIndex)
 		{
-			++i;
-			continue;
+			MoveTile(e.Key, MoveRange);
 		}
-
-		MoveTile(e.Key, MoveRange);
+		
+		++i;
 	}
 }
 
