@@ -89,7 +89,7 @@ void UYutManager::ShowYutResult()
 
 				for (const FYutResultData& YutResultData : YutResultDatas)
 				{
-					uint8 YutResultValue = YutResultData.YutResult;
+					int32 YutResultValue = YutResultData.YutResult;
 
 					// 이동에 필요한 시간 계산 (한 칸당 0.5초라면)
 					float MoveDuration = YutResultValue * 0.5f;
