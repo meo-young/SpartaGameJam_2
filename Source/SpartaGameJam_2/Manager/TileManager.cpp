@@ -303,6 +303,7 @@ int32 UTileManager::GetMovableTileIndex(ADdakjiCharacter* TargetPawn, int32 Move
 			}
 
 			// 가운데 위치까지와의 거리
+			//@TODO 이동 위치에 대해 문제가 있음
 			int32 Mod = (PawnLocationIndex != 0) ? PawnLocationIndex / InnerLength : InnerLength;
 			int32 CurLocation = 0;
 			if (Mod == 0)
