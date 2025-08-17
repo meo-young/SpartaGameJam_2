@@ -471,38 +471,43 @@ void UTileManager::MoveTile(ADdakjiCharacter* TargetPawn, int32 MoveRange)
 			{
 				TargetPawn->JumpToLocation(TargetLocation + GetPading());
 			}), 0.5f * (i + 1), false);
+
+		FTimerHandle MoveEndTimer;
+
+		GetWorld()->GetTimerManager().SetTimer(MoveEndTimer, FTimerDelegate::CreateLambda([=, this]()
+			{
+				// 도착 했는지 확인하는 로직
+				if (TargetPawnData->LocationIndex == 0 && TargetPawnData->bIsStart == true)
+				{
+					TargetPawn->SetActorHiddenInGame(true);
+					YutPawnArr.Remove(TargetPawn);
+				}
+
+				// 다른 말을 잡았는지 확인하는 로직
+				for (auto& e : YutPawnArr)
+				{
+					if (TargetPawn != e.Key &&
+						TargetPawnData->OwnerTeam != e.Value.OwnerTeam &&
+						TargetPawnData->LocationIndex == e.Value.LocationIndex)
+					{
+						GrappleTarget(e.Key);
+					}
+				}
+
+				// 이벤트 발판에 도착했는지 확인하는 로직
+				if (TrapTileList.Find(TargetPawnData->LocationIndex))
+				{
+					// 함정 이벤트 실행
+				}
+				else if (LuckyTileList.Find(TargetPawnData->LocationIndex))
+				{
+					// 행운 이벤트 실행
+				}
+			}), 0.5f * TargetPawnData->MovePath.Num(), false);
 	}
 
 	TargetPawnData->LocationIndex = TargetPawnData->MovePath.Last() % OutlineSize;
 	TargetPawnData->MovePath.Empty();
-
-	// 도착 했는지 확인하는 로직
-	if (TargetPawnData->LocationIndex == 0 && TargetPawnData->bIsStart == true)
-	{
-		TargetPawn->SetActorHiddenInGame(true);
-		YutPawnArr.Remove(TargetPawn);
-	}
-	
-	// 다른 말을 잡았는지 확인하는 로직
-	for (auto& e : YutPawnArr)
-	{
-		if (TargetPawn != e.Key &&
-			TargetPawnData->OwnerTeam != e.Value.OwnerTeam &&
-			TargetPawnData->LocationIndex == e.Value.LocationIndex)
-		{
-			GrappleTarget(e.Key);
-		}
-	}
-	
-	// 이벤트 발판에 도착했는지 확인하는 로직
-	if (TrapTileList.Find(TargetPawnData->LocationIndex))
-	{
-		// 함정 이벤트 실행
-	}
-	else if (LuckyTileList.Find(TargetPawnData->LocationIndex))
-	{
-		// 행운 이벤트 실행
-	}
 }
 
 void UTileManager::MoveTile_Index(int32 TargetCharacterIndex, int32 MoveRange)
@@ -584,6 +589,9 @@ void UTileManager::GrappleTarget(ADdakjiCharacter* TargetPawn)
 			return;
 		}
 
+		UVFXSubsystem* VFXSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UVFXSubsystem>();
+		VFXSubsystem->SpawnVFX(EVFX::Thunder, OutlineTileList[TargetPawnData->LocationIndex]->GetActorLocation() + GetPading());
+
 		TargetPawnData->LocationIndex = 0;
 		TargetPawnData->Direction = EMoveDirection::Outer;
 		TargetPawnData->TargetIndex = OutlineSize - 1;
@@ -591,9 +599,6 @@ void UTileManager::GrappleTarget(ADdakjiCharacter* TargetPawn)
 		TargetPawnData->bIsStart = false;
 
 		TargetPawn->JumpToLocation(OutlineTileList[0]->GetActorLocation() + GetPading());
-
-		UVFXSubsystem* VFXSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UVFXSubsystem>();
-		VFXSubsystem->SpawnVFX(EVFX::Thunder, OutlineTileList[0]->GetActorLocation() + GetPading());
 	}
 }
 
